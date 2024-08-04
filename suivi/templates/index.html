@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des Lots et Processus</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .header img {
+            max-width: 150px; /* Ajustez la taille du logo */
+            height: auto;
+        }
+        .logout-form {
+            margin: 0;
+        }
+        .logout-button {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+        .form-group select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .button.start {
+            background-color: #28a745;
+        }
+        .button.start:hover {
+            background-color: #218838;
+        }
+        .button.end {
+            background-color: #dc3545;
+        }
+        .button.end:hover {
+            background-color: #c82333;
+        }
+        .view-messages-button {
+            background-color: #007bff; /* Couleur de fond du bouton */
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .view-messages-button:hover {
+            background-color: #0056b3; /* Couleur de fond au survol */
+        }
+        .add-lot-button {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #007bff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .add-lot-button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            position: relative; /* Important pour la position sticky des en-têtes */
+        }
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f1f1f1;
+            z-index: 2; /* Assure que l'en-tête reste au-dessus des autres contenus */
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f1f1;
+        }
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .green {
+            background-color: #28a745;
+        }
+        .yellow {
+            background-color: #ffc107;
+        }
+        .red {
+            background-color: #dc3545;
+        }
+        .blue {
+            background-color: #007bff;
+        }
+        .time-taken {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{% static 'images/download.png' %}" alt="Logo"/>
+            <h1>Suivi des Lots et Processus</h1>
+            <div class="logout-form">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+        
+        <form method="post" id="process-form">
+            {% csrf_token %}
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="{{ form.lot.id_for_label }}">{{ form.lot.label }}</label>
+                    {{ form.lot }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.processus.id_for_label }}">{{ form.processus.label }}</label>
+                    {{ form.processus }}
+                </div>
+                <div class="button-group">
+                    <button type="submit" name="start" class="button start" onclick="return confirmAction('Début');">Début</button>
+                    <button type="submit" name="end" class="button end" onclick="return confirmAction('Fin');">Fin</button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="button-group">
+            <a href="{% url 'add_lot' %}" class="button add-lot-button">Ajouter un Lot</a>
+            <a href="{% url 'upload_lots' %}" class="button add-lot-button">Importer des Lots</a>
+            <a href="{% url 'reclamer_lot' %}" class="button add-lot-button">Réclamer un Lot</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Lot</th>
+                    <th>Quantité</th>
+                    {% for proc in data.0.processus %}
+                        <th>{{ proc.processus.nom_proc }}</th>
+                    {% endfor %}
+                    <th>Messages</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    <td>{{ item.lot.ref }}</td>
+                    <td>{{ item.lot.quantite }}</td>
+                    {% for proc_data in item.processus %}
+                    <td>
+                        <div class="circle 
+                            {% if not proc_data.debut %}blue
+                            {% elif proc_data.debut and proc_data.fin %}
+                                {% if proc_data.temps_pris <= proc_data.processus.duree %}green
+                                {% else %}red
+                                {% endif %}
+                            {% elif proc_data.debut %}yellow
+                            {% else %}red
+                            {% endif %}"></div>
+                        {% if proc_data.temps_pris %}
+                            <span class="time-taken">{{ proc_data.temps_pris }} min</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        <a href="{% url 'lot_messages' item.lot.ref %}" class="button view-messages-button">Voir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function confirmAction(action) {
+            return confirm("Êtes-vous sûr de vouloir " + action + " ce processus ?");
+        }
+    </script>
+</body>
+</html>
